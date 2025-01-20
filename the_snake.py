@@ -27,7 +27,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 5
+SPEED = 10
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -170,27 +170,41 @@ def main():
     pygame.init()
     apple: Apple = Apple()
     snake: Snake = Snake()
+
+    # Избегаем того, чтобы яблоко спавнилось на змейке
     while apple.position == snake.get_head_position():
-        # Avoid the apple on the snake.
-        apple.randomize_position()
+        apple.position = apple.randomize_position()
+
     apple.draw()
     snake.draw()
 
     pygame.display.update()
+
+    # Основной игровой цикл
     while True:
         clock.tick(SPEED)
 
-        # Check if the snake eats the apple.
+        # Обработка нажатий клавиш
+        handle_keys(snake)
+
+        # Проверка на съеденное яблоко
         if snake.get_head_position() == apple.position:
             snake.grow()
             while apple.position in snake.positions:
-                apple.randomize_position()
+                apple.position = apple.randomize_position()
             apple.draw()
+        elif snake.get_head_position() in snake.positions[1:]:
+            snake.reset()
+            screen.fill(BOARD_BACKGROUND_COLOR)
+            snake.draw()
+            apple.draw()
+            snake.move()
         else:
             snake.move()
 
-        # Update the screen.
+        # Обновление экрана
         pygame.display.update()
+
     pygame.quit()
 
 
